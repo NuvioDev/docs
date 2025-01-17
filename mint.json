@@ -18,11 +18,11 @@
   "versions": [
     {
       "name": "English",
-      "locale": "en",
+      "locale": "en"
     },
     {
       "name": "French",
-      "locale": "fr",
+      "locale": "fr"
     },
     {
       "name": "Spanish",
