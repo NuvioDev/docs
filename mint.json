@@ -15,6 +15,20 @@
       "to": "#07C983"
     }
   },
+  "versions": [
+    {
+      "name": "English",
+      "locale": "en",
+    },
+    {
+      "name": "French",
+      "locale": "fr",
+    },
+    {
+      "name": "Spanish",
+      "locale": "es"
+    }
+  ]
   "topbarLinks": [
     {
       "name": "Support",
@@ -52,20 +66,6 @@
         "essentials/settings",
         "essentials/navigation",
         "essentials/reusable-snippets"
-      ]
-    },
-    {
-      "group": "API Documentation",
-      "pages": [
-        "api-reference/introduction"
-      ]
-    },
-    {
-      "group": "Endpoint Examples",
-      "pages": [
-        "api-reference/endpoint/get",
-        "api-reference/endpoint/create",
-        "api-reference/endpoint/delete"
       ]
     }
   ],
