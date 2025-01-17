@@ -1,94 +1,101 @@
 {
   "openapi": "3.0.1",
   "info": {
-    "title": "OpenAPI Plant Store",
-    "description": "A sample API that uses a plant store as an example to demonstrate features in the OpenAPI specification",
-    "license": {
-      "name": "MIT"
-    },
-    "version": "1.0.0"
+    "title": "Nuvio API",
+    "version": "1.0"
   },
   "servers": [
     {
-      "url": "http://sandbox.mintlify.com"
-    }
-  ],
-  "security": [
-    {
-      "bearerAuth": []
+      "url": "https://api.nuvio.io"
     }
   ],
   "paths": {
-    "/plants": {
+    "/v1/accounts/{id}": {
       "get": {
-        "description": "Returns all plants from the system that the user has access to",
+        "tags": [
+          "Accounts & Transactions"
+        ],
+        "summary": "Get an Account by ID",
+        "description": "Retrieves an account by its unique ID",
         "parameters": [
           {
-            "name": "limit",
-            "in": "query",
-            "description": "The maximum number of results to return",
+            "name": "id",
+            "in": "path",
+            "required": true,
             "schema": {
-              "type": "integer",
-              "format": "int32"
+              "type": "string",
+              "format": "uuid"
             }
           }
         ],
         "responses": {
           "200": {
-            "description": "Plant response",
+            "description": "OK",
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/Plant"
-                  }
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Unexpected error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
+                  "$ref": "#/components/schemas/GetBankByIdResponseResponse"
                 }
               }
             }
           }
         }
       },
-      "post": {
-        "description": "Creates a new plant in the store",
+      "put": {
+        "tags": [
+          "Accounts & Transactions"
+        ],
+        "summary": "Update Account",
+        "description": "Updates an existing bank or cash account.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
         "requestBody": {
-          "description": "Plant to add to the store",
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/NewPlant"
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/UpdateBankRequest"
+                  }
+                ]
+              }
+            },
+            "text/json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/UpdateBankRequest"
+                  }
+                ]
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/UpdateBankRequest"
+                  }
+                ]
               }
             }
-          },
-          "required": true
+          }
         },
         "responses": {
           "200": {
-            "description": "plant response",
+            "description": "OK",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Plant"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "unexpected error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
+                  "$ref": "#/components/schemas/UpdateBankResponseResponse"
                 }
               }
             }
@@ -96,32 +103,1433 @@
         }
       }
     },
-    "/plants/{id}": {
-      "delete": {
-        "description": "Deletes a single plant based on the ID supplied",
+    "/v1/accounts": {
+      "get": {
+        "tags": [
+          "Accounts & Transactions"
+        ],
+        "summary": "List all Accounts",
+        "description": "Retrieves the list of all available bank and cash accounts",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetAllBanksResponseListResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Accounts & Transactions"
+        ],
+        "summary": "Create a new Account",
+        "description": "Creates a new bank or cash account. Accounts created with this endpoint are manually tracked bank accounts. To integrate your existing bank account into Nuvio, please contact with support team.",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/CreateBankRequest"
+                  }
+                ]
+              }
+            },
+            "text/json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/CreateBankRequest"
+                  }
+                ]
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/CreateBankRequest"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateBankResponseResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/transactions/{id}": {
+      "get": {
+        "tags": [
+          "Accounts & Transactions"
+        ],
+        "summary": "Get a Transaction by ID",
+        "description": "Retrieves a single transaction by its unique ID",
         "parameters": [
           {
             "name": "id",
             "in": "path",
-            "description": "ID of plant to delete",
             "required": true,
             "schema": {
-              "type": "integer",
-              "format": "int64"
+              "type": "string",
+              "format": "uuid"
             }
           }
         ],
         "responses": {
-          "204": {
-            "description": "Plant deleted",
-            "content": {}
-          },
-          "400": {
-            "description": "unexpected error",
+          "200": {
+            "description": "OK",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Error"
+                  "$ref": "#/components/schemas/GetTransactionByIdResponseResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Accounts & Transactions"
+        ],
+        "summary": "Update Transaction",
+        "description": "Updates an existing transaction.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/UpdateTransactionRequest"
+                  }
+                ]
+              }
+            },
+            "text/json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/UpdateTransactionRequest"
+                  }
+                ]
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/UpdateTransactionRequest"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UpdateTransactionResponseResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/transactions": {
+      "get": {
+        "tags": [
+          "Accounts & Transactions"
+        ],
+        "summary": "List all Transactions",
+        "description": "Retrieves the list of transactions in all accounts bank and cash accounts",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetAllTransactionsResponseListResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Accounts & Transactions"
+        ],
+        "summary": "Add a new Transaction",
+        "description": "Adds a new transaction into an existing account.",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/CreateTransactionRequest"
+                  }
+                ]
+              }
+            },
+            "text/json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/CreateTransactionRequest"
+                  }
+                ]
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/CreateTransactionRequest"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateTransactionResponseResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/business-entities/{id}": {
+      "get": {
+        "tags": [
+          "Customers & Suppliers"
+        ],
+        "summary": "Get a Customer or Supplier by ID",
+        "description": "Retrieves a customer or supplier by its unique ID or user-generated customer or supplier ID.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetBusinessEntityByIdResponseResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Customers & Suppliers"
+        ],
+        "summary": "Update Customer or Supplier",
+        "description": "Updates an existing customer or supplier",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/UpdateBusinessEntityRequest"
+                  }
+                ]
+              }
+            },
+            "text/json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/UpdateBusinessEntityRequest"
+                  }
+                ]
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/UpdateBusinessEntityRequest"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UpdateBusinessEntityResponseResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/business-entities": {
+      "get": {
+        "tags": [
+          "Customers & Suppliers"
+        ],
+        "summary": "List all Customers or Suppliers",
+        "description": "Retrieves all the customers or suppliers that match with provided filters",
+        "parameters": [
+          {
+            "name": "isSupplier",
+            "in": "query",
+            "description": "Send this as true if you would like to list suppliers.",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "isCustomer",
+            "in": "query",
+            "description": "Send this as true if you would like to list customers.",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetAllBusinessEntityResponseListResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Customers & Suppliers"
+        ],
+        "summary": "Create a new Customer or Supplier",
+        "description": "Creates a new Customer or Supplier from scratch",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/CreateBusinessEntityRequest"
+                  }
+                ]
+              }
+            },
+            "text/json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/CreateBusinessEntityRequest"
+                  }
+                ]
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/CreateBusinessEntityRequest"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateBusinessEntityResponseResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/expense/{id}": {
+      "get": {
+        "tags": [
+          "Expenses"
+        ],
+        "summary": "Get an Expense by ID",
+        "description": "Retrieves an expense by its unique UID",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetExpenseByIdResponseResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Expenses"
+        ],
+        "summary": "Update expense",
+        "description": "Updates an existing expense",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/UpdateExpenseRequest"
+                  }
+                ]
+              }
+            },
+            "text/json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/UpdateExpenseRequest"
+                  }
+                ]
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/UpdateExpenseRequest"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UpdateExpenseResponseResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/list-expenses": {
+      "post": {
+        "tags": [
+          "Expenses"
+        ],
+        "summary": "List all expenses",
+        "description": "Retrieves all the expenses that match with provided filters",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/GetAllExpensesRequest"
+                  }
+                ]
+              }
+            },
+            "text/json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/GetAllExpensesRequest"
+                  }
+                ]
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/GetAllExpensesRequest"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetAllExpensesResponseListResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/expense": {
+      "post": {
+        "tags": [
+          "Expenses"
+        ],
+        "summary": "Create a new Expense",
+        "description": "Creates a new expense from scratch",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/CreateExpenseRequest"
+                  }
+                ]
+              }
+            },
+            "text/json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/CreateExpenseRequest"
+                  }
+                ]
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/CreateExpenseRequest"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateExpenseResponseResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/income/{id}": {
+      "get": {
+        "tags": [
+          "Income"
+        ],
+        "summary": "Get an Income by ID",
+        "description": "Retrieves an income by its unique UID or user-generated Invoice ID",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetIncomeByIdResponseResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Income"
+        ],
+        "summary": "Update income",
+        "description": "Updates an existing income",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/UpdateIncomeRequest"
+                  }
+                ]
+              }
+            },
+            "text/json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/UpdateIncomeRequest"
+                  }
+                ]
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/UpdateIncomeRequest"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UpdateIncomeResponseResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/list-incomes": {
+      "post": {
+        "tags": [
+          "Income"
+        ],
+        "summary": "List all incomes",
+        "description": "Retrieves all the incomes that match with provided filters",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/GetAllIncomesRequest"
+                  }
+                ]
+              }
+            },
+            "text/json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/GetAllIncomesRequest"
+                  }
+                ]
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/GetAllIncomesRequest"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetAllIncomesResponseListResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/income": {
+      "post": {
+        "tags": [
+          "Income"
+        ],
+        "summary": "Create a new Income",
+        "description": "Creates a new income from scratch",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/CreateIncomeRequest"
+                  }
+                ]
+              }
+            },
+            "text/json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/CreateIncomeRequest"
+                  }
+                ]
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/CreateIncomeRequest"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateIncomeResponseResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/match-payment/{transactionId}": {
+      "post": {
+        "tags": [
+          "Payments"
+        ],
+        "summary": "Match payment with an existing Transaction",
+        "description": "Matches an existing transaction as the payment for an income or expense.",
+        "parameters": [
+          {
+            "name": "transactionId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/MatchPaymentRequest"
+                  }
+                ]
+              }
+            },
+            "text/json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/MatchPaymentRequest"
+                  }
+                ]
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/MatchPaymentRequest"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MatchPaymentResponseResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/add-payment": {
+      "post": {
+        "tags": [
+          "Payments"
+        ],
+        "summary": "Record a new payment",
+        "description": "Adds a new payment into for an income or expense. This endpoint also creates a new transaction in the provided account automatically. It works only for manually tracked accounts. If you would like to match an existing transaction with and income or expense please use 'Match Payment' endpoint.",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/CreatePaymentRequest"
+                  }
+                ]
+              }
+            },
+            "text/json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/CreatePaymentRequest"
+                  }
+                ]
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/CreatePaymentRequest"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreatePaymentResponseResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/product-services/{id}": {
+      "get": {
+        "tags": [
+          "Products & Services"
+        ],
+        "summary": "Get a Product / Service by ID",
+        "description": "Retrieves a single product or service by its unique ID or user-generated product code.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetProductByIdResponseResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Products & Services"
+        ],
+        "summary": "Update Product or Service",
+        "description": "Updates an existing product or service",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/UpdateProductRequest"
+                  }
+                ]
+              }
+            },
+            "text/json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/UpdateProductRequest"
+                  }
+                ]
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/UpdateProductRequest"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UpdateProductResponseResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/product-services": {
+      "get": {
+        "tags": [
+          "Products & Services"
+        ],
+        "summary": "List all Products & Services",
+        "description": "Retrieves all the products and services",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetAllProductsResponseListResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Products & Services"
+        ],
+        "summary": "Create a new Product or Service",
+        "description": "Creates a new product or service",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/CreateProductRequest"
+                  }
+                ]
+              }
+            },
+            "text/json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/CreateProductRequest"
+                  }
+                ]
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/CreateProductRequest"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateProductResponseResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/project/{id}": {
+      "get": {
+        "tags": [
+          "Projects"
+        ],
+        "summary": "Get a Project by ID",
+        "description": "Retrieves a single product or service by its unique ID or user-generated project code.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetProjectByIdResponseResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Projects"
+        ],
+        "summary": "Update Project",
+        "description": "Updates an existing project",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/UpdateProjectRequest"
+                  }
+                ]
+              }
+            },
+            "text/json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/UpdateProjectRequest"
+                  }
+                ]
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/UpdateProjectRequest"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UpdateProjectResponseResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/project": {
+      "get": {
+        "tags": [
+          "Projects"
+        ],
+        "summary": "List all Projects",
+        "description": "Retrieves all the projects",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetAllProjectsResponseListResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Projects"
+        ],
+        "summary": "Create a new Project",
+        "description": "Creates a new project",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/CreateProjectRequest"
+                  }
+                ]
+              }
+            },
+            "text/json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/CreateProjectRequest"
+                  }
+                ]
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/CreateProjectRequest"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateProjectResponseResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/tags/{id}": {
+      "get": {
+        "tags": [
+          "Tags"
+        ],
+        "summary": "Get a Tag by ID",
+        "description": "Retrieves a single tag by its unique ID",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetTagByIdResponseResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Tags"
+        ],
+        "summary": "Update Tag",
+        "description": "Updates an existing tag",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/UpdateTagRequest"
+                  }
+                ]
+              }
+            },
+            "text/json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/UpdateTagRequest"
+                  }
+                ]
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/UpdateTagRequest"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UpdateTagResponseResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/tags": {
+      "get": {
+        "tags": [
+          "Tags"
+        ],
+        "summary": "List all Tags",
+        "description": "Retrieves all tags",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetAllTagsResponseListResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Tags"
+        ],
+        "summary": "Create a new Tag",
+        "description": "Creates a new tag",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/CreateTagRequest"
+                  }
+                ]
+              }
+            },
+            "text/json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/CreateTagRequest"
+                  }
+                ]
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/CreateTagRequest"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateTagResponseResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/tax": {
+      "get": {
+        "tags": [
+          "Taxes"
+        ],
+        "summary": "Tax List",
+        "description": "Get Tax List",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetAllTaxesResponseListResponse"
                 }
               }
             }
@@ -132,64 +1540,4990 @@
   },
   "components": {
     "schemas": {
-      "Plant": {
+      "CreateBankRequest": {
+        "required": [
+          "currency",
+          "name"
+        ],
+        "type": "object",
+        "properties": {
+          "name": {
+            "minLength": 1,
+            "type": "string",
+            "description": "Account name"
+          },
+          "iban": {
+            "type": "string",
+            "description": "IBAN of this bank account."
+          },
+          "currency": {
+            "minLength": 1,
+            "type": "string",
+            "description": "3-letter currency code for the account. You can find available currencies here."
+          },
+          "openingBalance": {
+            "type": "number",
+            "description": "Opening Balance to start with an existing account. It should be a decimal number with 2 decimal points. `eg. 1059.34`",
+            "format": "double"
+          }
+        },
+        "additionalProperties": false
+      },
+      "CreateBankResponse": {
+        "title": "Bank",
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "iban": {
+            "type": "string"
+          },
+          "integrationType": {
+            "type": "string"
+          },
+          "currency": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          },
+          "openingBalance": {
+            "type": "number",
+            "format": "double"
+          },
+          "currentBalance": {
+            "type": "number",
+            "format": "double"
+          }
+        },
+        "additionalProperties": false
+      },
+      "CreateBankResponseResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "errors": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          },
+          "data": {
+            "title": "Bank",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/CreateBankResponse"
+              }
+            ]
+          }
+        },
+        "additionalProperties": false
+      },
+      "CreateBusinessEntityRequest": {
+        "required": [
+          "name"
+        ],
+        "type": "object",
+        "properties": {
+          "entityCode": {
+            "type": "string",
+            "description": "A unique code for this customer / supplier. Should be a unique alpha numeric string."
+          },
+          "name": {
+            "minLength": 1,
+            "type": "string",
+            "description": "A short name for this customer / supplier. This will be the visible name of this business entity."
+          },
+          "isCustomer": {
+            "type": "boolean",
+            "description": "Should be true if this business entity is a customer."
+          },
+          "isSupplier": {
+            "type": "boolean",
+            "description": "Should be true if this business entity is a supplier."
+          },
+          "legalName": {
+            "type": "string",
+            "description": "Legal company name for this business entity that is going to be used in invoices and billing."
+          },
+          "vatNumber": {
+            "type": "string",
+            "description": "TaxID or VAT number of the business entity."
+          },
+          "taxOffice": {
+            "type": "string",
+            "description": "Registered Tax office."
+          },
+          "address": {
+            "type": "string",
+            "description": "Billing Address of the business entity."
+          },
+          "city": {
+            "type": "string",
+            "description": "City of the registered billing address."
+          },
+          "country": {
+            "type": "string",
+            "description": "Country of the registered billing address. You can find the available countries here."
+          },
+          "district": {
+            "type": "string",
+            "description": "District / region of the registered billing address."
+          },
+          "state": {
+            "type": "string",
+            "description": "State of the registered billing address."
+          },
+          "postalCode": {
+            "type": "string",
+            "description": "Postal code of the registered billing address."
+          },
+          "email": {
+            "type": "string",
+            "description": "Contact person's email"
+          },
+          "phone": {
+            "type": "string",
+            "description": "Company's or contact person's phone"
+          },
+          "iban": {
+            "type": "string",
+            "description": "IBAN number of the bank account of the business entity."
+          }
+        },
+        "additionalProperties": false
+      },
+      "CreateBusinessEntityResponse": {
+        "title": "Business Entity",
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "entityCode": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "legalName": {
+            "type": "string"
+          },
+          "vatNumber": {
+            "type": "string"
+          },
+          "taxOffice": {
+            "type": "string"
+          },
+          "address": {
+            "type": "string"
+          },
+          "city": {
+            "type": "string"
+          },
+          "country": {
+            "type": "string"
+          },
+          "district": {
+            "type": "string"
+          },
+          "state": {
+            "type": "string"
+          },
+          "postalCode": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "phone": {
+            "type": "string"
+          },
+          "iban": {
+            "type": "string"
+          },
+          "isCustomer": {
+            "type": "boolean"
+          },
+          "isSupplier": {
+            "type": "boolean"
+          }
+        },
+        "additionalProperties": false
+      },
+      "CreateBusinessEntityResponseResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "errors": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          },
+          "data": {
+            "title": "Business Entity",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/CreateBusinessEntityResponse"
+              }
+            ]
+          }
+        },
+        "additionalProperties": false
+      },
+      "CreateExpenseItemTaxesResponse": {
+        "type": "object",
+        "properties": {
+          "taxId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "taxName": {
+            "type": "string"
+          },
+          "taxAmount": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "CreateExpenseItemsRequest": {
+        "required": [
+          "itemDetail"
+        ],
+        "type": "object",
+        "properties": {
+          "itemDetail": {
+            "minLength": 1,
+            "type": "string",
+            "description": "Description of the item. Should be a string."
+          },
+          "productId": {
+            "type": "string",
+            "description": "32-character unique ID of the product. If you don't know the ID, you can also provide `productCode` instead of this field. If both of them are provided, `productId` will be used only.",
+            "format": "uuid"
+          },
+          "productCode": {
+            "type": "string",
+            "description": "User-generated custom unique code of the specific product. If `productId` is also provided, it will override this field."
+          },
+          "quantity": {
+            "type": "integer",
+            "description": "Quantity of the sold items. It should be a positive integer.",
+            "format": "int32"
+          },
+          "itemTaxes": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "A list of the taxes to be applied to the related line item. Provide a list of taxes with their 32-character unique ID."
+          },
+          "unitPrice": {
+            "type": "number",
+            "description": "Net Amount of a single product sold. Should be a positive decimal number with 2 decimal points. `eg. 32.43`",
+            "format": "double"
+          }
+        },
+        "additionalProperties": false
+      },
+      "CreateExpenseItemsResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "itemDetail": {
+            "type": "string"
+          },
+          "productCode": {
+            "type": "string"
+          },
+          "productId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "productName": {
+            "type": "string"
+          },
+          "quantity": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "unitPrice": {
+            "type": "number",
+            "format": "double"
+          },
+          "totalTaxes": {
+            "type": "number",
+            "format": "double"
+          },
+          "totalAmount": {
+            "type": "number",
+            "format": "double"
+          },
+          "itemTaxes": {
+            "title": "Item Taxes",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CreateExpenseItemTaxesResponse"
+            }
+          }
+        },
+        "additionalProperties": false
+      },
+      "CreateExpenseMatchedPaymentsResponse": {
+        "type": "object",
+        "properties": {
+          "bankAccountId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "bankAccountName": {
+            "type": "string"
+          },
+          "transactionId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "amount": {
+            "type": "number",
+            "format": "double"
+          },
+          "currency": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "transactionDate": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "CreateExpenseProjectResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "projectCode": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "CreateExpenseRequest": {
+        "required": [
+          "description",
+          "dueDate",
+          "expenseDate"
+        ],
+        "type": "object",
+        "properties": {
+          "referenceNumber": {
+            "type": "string",
+            "description": "Invoice or receipt number of the received expense, formatted in string. Accepts alpha numeric characters and '-' symbol."
+          },
+          "description": {
+            "minLength": 1,
+            "type": "string",
+            "description": "Description of the expense. This will also be its title in the Nuvio Platform."
+          },
+          "expenseDate": {
+            "minLength": 1,
+            "type": "string",
+            "description": "The date of the expense. Should be formatted in `YYYY-MM-DD` format"
+          },
+          "dueDate": {
+            "minLength": 1,
+            "type": "string",
+            "description": "Due date of the payment for this expense. Should be formatted in `YYYY-MM-DD` format."
+          },
+          "currency": {
+            "type": "string",
+            "description": "3-letter currency code. You can find all the available currencies here."
+          },
+          "projectId": {
+            "type": "string",
+            "description": "32-character unique ID of the related project. If you don't know the ID, you can also provide `projectCode` instead of this field. If both of them are provided `projectId` will be used only.",
+            "format": "uuid"
+          },
+          "projectCode": {
+            "type": "string",
+            "description": "User-generated custom code of the related project. If `projectId`` is also provided, it will override this field."
+          },
+          "supplierId": {
+            "type": "string",
+            "description": "32-character unique ID of the supplier. If you don't know the ID, you can also provide `supplierCode` instead of this field. If both of them are provided, `supplierId` will be used only.",
+            "format": "uuid"
+          },
+          "supplierCode": {
+            "type": "string",
+            "description": "User-generated custom unique code of the specific supplier. If `supplierId` is also provided, it will override this field."
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "List of the tags that are related to this expense. Provide a list of tags with their 32-character unique ID."
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CreateExpenseItemsRequest"
+            },
+            "description": "List of the items that are linked to this expense."
+          },
+          "exchangeRate": {
+            "type": "number",
+            "description": "If currency is different than your company's functional currency, this will be the exchange rate that Nuvio will use while converting the amounts of this expense to company's functional currency. Should be number with 4 decimal points. `eg. 32.4325`",
+            "format": "double"
+          }
+        },
+        "additionalProperties": false
+      },
+      "CreateExpenseResponse": {
+        "title": "Expense",
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "referenceNumber": {
+            "type": "string"
+          },
+          "paymentStatus": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "dueDate": {
+            "type": "string"
+          },
+          "expenseDate": {
+            "type": "string"
+          },
+          "currency": {
+            "type": "string"
+          },
+          "exchangeRate": {
+            "type": "number",
+            "format": "double"
+          },
+          "project": {
+            "title": "Project",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/CreateExpenseProjectResponse"
+              }
+            ]
+          },
+          "supplier": {
+            "title": "Supplier",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/CreateExpenseSupplierResponse"
+              }
+            ]
+          },
+          "tags": {
+            "title": "Tags",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CreateExpenseTagsResponse"
+            }
+          },
+          "subTotal": {
+            "type": "number",
+            "format": "double"
+          },
+          "totalTax": {
+            "type": "number",
+            "format": "double"
+          },
+          "totalAmount": {
+            "type": "number",
+            "format": "double"
+          },
+          "remainingAmount": {
+            "type": "number",
+            "format": "double"
+          },
+          "items": {
+            "title": "Items",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CreateExpenseItemsResponse"
+            }
+          },
+          "matchedPayments": {
+            "title": "Matched Payments",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CreateExpenseMatchedPaymentsResponse"
+            }
+          }
+        },
+        "additionalProperties": false
+      },
+      "CreateExpenseResponseResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "errors": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          },
+          "data": {
+            "title": "Expense",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/CreateExpenseResponse"
+              }
+            ]
+          }
+        },
+        "additionalProperties": false
+      },
+      "CreateExpenseSupplierResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "entityCode": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "CreateExpenseTagsResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "CreateIncomeCustomerResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "entityCode": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "CreateIncomeItemTaxesResponse": {
+        "type": "object",
+        "properties": {
+          "taxId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "taxName": {
+            "type": "string"
+          },
+          "taxAmount": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "CreateIncomeItemsRequest": {
+        "type": "object",
+        "properties": {
+          "productId": {
+            "type": "string",
+            "description": "32-character unique ID of the product. If you don't know the ID, you can also provide `productCode` instead of this field. If both of them are provided, `productId` will be used only.",
+            "format": "uuid"
+          },
+          "productCode": {
+            "type": "string",
+            "description": "User-generated custom unique code of the specific product. If `productId` is also provided, it will override this field."
+          },
+          "quantity": {
+            "type": "integer",
+            "description": "Quantity of the sold items. It should be a positive integer.",
+            "format": "int32"
+          },
+          "itemTaxes": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "A list of the taxes to be applied to the related line item. Provide a list of taxes with their 32-character unique ID."
+          },
+          "unitPrice": {
+            "type": "number",
+            "description": "Net Amount of a single product sold. Should be a positive decimal number with 2 decimal points. `eg. 32.43`",
+            "format": "double"
+          }
+        },
+        "additionalProperties": false
+      },
+      "CreateIncomeItemsResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "productCode": {
+            "type": "string"
+          },
+          "productId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "productName": {
+            "type": "string"
+          },
+          "quantity": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "unitPrice": {
+            "type": "number",
+            "format": "double"
+          },
+          "totalTaxes": {
+            "type": "number",
+            "format": "double"
+          },
+          "totalAmount": {
+            "type": "number",
+            "format": "double"
+          },
+          "itemTaxes": {
+            "title": "Item Taxes",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CreateIncomeItemTaxesResponse"
+            }
+          }
+        },
+        "additionalProperties": false
+      },
+      "CreateIncomeMatchedPaymentsResponse": {
+        "type": "object",
+        "properties": {
+          "bankAccountId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "bankAccountName": {
+            "type": "string"
+          },
+          "transactionId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "amount": {
+            "type": "number",
+            "format": "double"
+          },
+          "currency": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "transactionDate": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "CreateIncomeProjectResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "projectCode": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "CreateIncomeRequest": {
+        "required": [
+          "description",
+          "dueDate",
+          "invoiceDate"
+        ],
+        "type": "object",
+        "properties": {
+          "invoiceNumber": {
+            "type": "string",
+            "description": "Invoice number formatted in string. Accepts alpha numeric characters and '-' symbol."
+          },
+          "description": {
+            "minLength": 1,
+            "type": "string",
+            "description": "Description of the income. This will also be its title in the Nuvio Platform."
+          },
+          "invoiceDate": {
+            "minLength": 1,
+            "type": "string",
+            "description": "The date of the income. Should be formatted in `YYYY-MM-DD` format."
+          },
+          "dueDate": {
+            "minLength": 1,
+            "type": "string",
+            "description": "Due date of the payment for this income. Should be formatted in `YYYY-MM-DD` format."
+          },
+          "currency": {
+            "type": "string",
+            "description": "3-letter currency code. You can find all the available currencies here."
+          },
+          "projectId": {
+            "type": "string",
+            "description": "32-character unique ID of the related project. If you don't know the ID, you can also provide `projectCode` instead of this field. If both of them are provided `projectId` will be used only.",
+            "format": "uuid"
+          },
+          "projectCode": {
+            "type": "string",
+            "description": "User-generated custom code of the related project. If `projectId` is also provided, it will override this field."
+          },
+          "customerId": {
+            "type": "string",
+            "description": "32-character unique ID of the customer. If you don't know the ID, you can also provide `customerCode` instead of this field. If both of them are provided, `customerId` will be used only.",
+            "format": "uuid"
+          },
+          "customerCode": {
+            "type": "string",
+            "description": "User-generated custom unique code of the specific customer. If `customerId` is also provided, it will override this field."
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "List of the tags that are related to this income. Provide a list of tags with their 32-character unique ID."
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CreateIncomeItemsRequest"
+            },
+            "description": "List of the items that are sold in this income."
+          },
+          "exchangeRate": {
+            "type": "number",
+            "description": "If currency is different than your company's functional currency, this will be the exchange rate that Nuvio will use while converting the amounts of this expense to company's functional currency. Should be number with 4 decimal points. `eg. 32.4325`",
+            "format": "double"
+          }
+        },
+        "additionalProperties": false
+      },
+      "CreateIncomeResponse": {
+        "title": "Income",
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "invoiceNumber": {
+            "type": "string"
+          },
+          "invoiceStatus": {
+            "type": "string"
+          },
+          "paymentStatus": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "dueDate": {
+            "type": "string"
+          },
+          "invoiceDate": {
+            "type": "string"
+          },
+          "currency": {
+            "type": "string"
+          },
+          "exchangeRate": {
+            "type": "number",
+            "format": "double"
+          },
+          "project": {
+            "title": "Project",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/CreateIncomeProjectResponse"
+              }
+            ]
+          },
+          "customer": {
+            "title": "Customer",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/CreateIncomeCustomerResponse"
+              }
+            ]
+          },
+          "tags": {
+            "title": "Tags",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CreateIncomeTagsResponse"
+            }
+          },
+          "subTotal": {
+            "type": "number",
+            "format": "double"
+          },
+          "totalTax": {
+            "type": "number",
+            "format": "double"
+          },
+          "totalAmount": {
+            "type": "number",
+            "format": "double"
+          },
+          "remainingAmount": {
+            "type": "number",
+            "format": "double"
+          },
+          "items": {
+            "title": "Items",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CreateIncomeItemsResponse"
+            }
+          },
+          "matchedPayments": {
+            "title": "Matched Payments",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CreateIncomeMatchedPaymentsResponse"
+            }
+          }
+        },
+        "additionalProperties": false
+      },
+      "CreateIncomeResponseResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "errors": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          },
+          "data": {
+            "title": "Income",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/CreateIncomeResponse"
+              }
+            ]
+          }
+        },
+        "additionalProperties": false
+      },
+      "CreateIncomeTagsResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "CreatePaymentMatchedEntityResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "code": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "CreatePaymentMatchedExpensesResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "expenseId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "matchedAmount": {
+            "type": "number",
+            "format": "double"
+          }
+        },
+        "additionalProperties": false
+      },
+      "CreatePaymentMatchedIncomesResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "invoiceId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "matchedAmount": {
+            "type": "number",
+            "format": "double"
+          }
+        },
+        "additionalProperties": false
+      },
+      "CreatePaymentRequest": {
+        "required": [
+          "accountId",
+          "description"
+        ],
+        "type": "object",
+        "properties": {
+          "invoiceId": {
+            "type": "string",
+            "description": "32-character unique ID of the matching Invoice. If this payment does not match with an income, do not include this field while sending your request. you can include `expenseId` to match with an expense.",
+            "format": "uuid"
+          },
+          "expenseId": {
+            "type": "string",
+            "description": "32-character unique ID of the matching Expense. If this payment does not match with an expense, do not include this field while sending your request. you can include `incomeId` to match with an income.",
+            "format": "uuid"
+          },
+          "accountId": {
+            "type": "string",
+            "description": "32-character unique ID of the bank or cash account of the transaction. This payment will be recorded into this account. Please make sure that the selected account's currency is the mathes with the income or expense's currency or with the company's functional currency. If the selected account's currency does not match any of those currencies, payment will not be recorded.",
+            "format": "uuid"
+          },
+          "description": {
+            "minLength": 1,
+            "type": "string",
+            "description": "Description of the payment. Will also be used as the description of the added transaction."
+          },
+          "transactionTimestamp": {
+            "type": "integer",
+            "description": "Epoch timestamp for the transaction date and time. If you don't know the timestamp, you can also provice `transactionDate`. If both of the fields are provided, `transactionTimestamp` will be used.",
+            "format": "int64"
+          },
+          "transactionDate": {
+            "type": "string",
+            "description": "Datetime with timezone for the transaction date and time. You can also provide `transactionTimestamp`. If both of the fields are provided, `transactionTimestamp` will be used."
+          },
+          "amount": {
+            "type": "number",
+            "description": "The amount of the payment. This amount should be less or equal to matched income or expense's remaining balance. ",
+            "format": "double"
+          }
+        },
+        "additionalProperties": false
+      },
+      "CreatePaymentResponse": {
+        "title": "Transaction",
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "accountId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "accountName": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "transactionTimestamp": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "transactionDate": {
+            "type": "string"
+          },
+          "amount": {
+            "type": "number",
+            "format": "double"
+          },
+          "currency": {
+            "type": "string"
+          },
+          "transactionType": {
+            "type": "string"
+          },
+          "matchedEntity": {
+            "title": "Matched Entity",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/CreatePaymentMatchedEntityResponse"
+              }
+            ]
+          },
+          "matchedIncomes": {
+            "title": "Matched Incomes",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CreatePaymentMatchedIncomesResponse"
+            }
+          },
+          "matchedExpenses": {
+            "title": "Matched Expenses",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CreatePaymentMatchedExpensesResponse"
+            }
+          }
+        },
+        "additionalProperties": false
+      },
+      "CreatePaymentResponseResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "errors": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          },
+          "data": {
+            "title": "Transaction",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/CreatePaymentResponse"
+              }
+            ]
+          }
+        },
+        "additionalProperties": false
+      },
+      "CreateProductRequest": {
         "required": [
           "name"
         ],
         "type": "object",
         "properties": {
           "name": {
-            "description": "The name of the plant",
-            "type": "string"
+            "minLength": 1,
+            "type": "string",
+            "description": "A user-generated custom code for this product or service"
           },
-          "tag": {
-            "description": "Tag to specify the type",
-            "type": "string"
+          "productCode": {
+            "type": "string",
+            "description": "Name of the product or service"
+          },
+          "taxes": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "A list of the default taxes to be added to when the product is selected in the Nuvio Platform. Provide a list of taxes with their 32-character unique ID."
           }
-        }
+        },
+        "additionalProperties": false
       },
-      "NewPlant": {
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/Plant"
+      "CreateProductResponse": {
+        "title": "Product",
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
           },
-          {
-            "required": [
-              "id"
-            ],
-            "type": "object",
-            "properties": {
-              "id": {
-                "description": "Identification number of the plant",
-                "type": "integer",
-                "format": "int64"
-              }
+          "code": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "taxes": {
+            "title": "Taxes",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CreateProductTaxesResponse"
             }
           }
-        ]
+        },
+        "additionalProperties": false
       },
-      "Error": {
+      "CreateProductResponseResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "errors": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          },
+          "data": {
+            "title": "Product",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/CreateProductResponse"
+              }
+            ]
+          }
+        },
+        "additionalProperties": false
+      },
+      "CreateProductTaxesResponse": {
+        "type": "object",
+        "properties": {
+          "taxId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "taxName": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "CreateProjectRequest": {
         "required": [
-          "error",
-          "message"
+          "name"
         ],
         "type": "object",
         "properties": {
-          "error": {
+          "name": {
+            "minLength": 1,
+            "type": "string",
+            "description": "Name of the project"
+          },
+          "startDate": {
+            "type": "string",
+            "description": "Starting date of the project. Should be in `YYYY-MM-DD` format"
+          },
+          "endDate": {
+            "type": "string",
+            "description": "Ending date of the project. Should be in `YYYY-MM-DD` format"
+          },
+          "projectCode": {
+            "type": "string",
+            "description": "Name of the project"
+          },
+          "budget": {
+            "type": "number",
+            "description": "Total budget of the project.",
+            "format": "double",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "CreateProjectResponse": {
+        "title": "Project",
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "budget": {
+            "type": "number",
+            "format": "double"
+          },
+          "startDate": {
+            "type": "string"
+          },
+          "endDate": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "CreateProjectResponseResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "errors": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          },
+          "data": {
+            "title": "Project",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/CreateProjectResponse"
+              }
+            ]
+          }
+        },
+        "additionalProperties": false
+      },
+      "CreateTagRequest": {
+        "required": [
+          "name"
+        ],
+        "type": "object",
+        "properties": {
+          "name": {
+            "minLength": 1,
+            "type": "string",
+            "description": "Name of the tag"
+          }
+        },
+        "additionalProperties": false
+      },
+      "CreateTagResponse": {
+        "title": "Tag",
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "CreateTagResponseResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "errors": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          },
+          "data": {
+            "title": "Tag",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/CreateTagResponse"
+              }
+            ]
+          }
+        },
+        "additionalProperties": false
+      },
+      "CreateTransactionMatchedEntityResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "code": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "CreateTransactionMatchedExpensesResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "expenseId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "matchedAmount": {
+            "type": "number",
+            "format": "double"
+          }
+        },
+        "additionalProperties": false
+      },
+      "CreateTransactionMatchedIncomesResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "invoiceId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "matchedAmount": {
+            "type": "number",
+            "format": "double"
+          }
+        },
+        "additionalProperties": false
+      },
+      "CreateTransactionRequest": {
+        "required": [
+          "accountId",
+          "description"
+        ],
+        "type": "object",
+        "properties": {
+          "accountId": {
+            "type": "string",
+            "description": "32-character unique ID of the account that the transaction belongs.",
+            "format": "uuid"
+          },
+          "description": {
+            "minLength": 1,
+            "type": "string",
+            "description": "Description of the transaction"
+          },
+          "transactionTimestamp": {
+            "type": "integer",
+            "description": "Epoch timestamp for the transaction date and time. If you don't know the timestamp, you can also provice `transactionDate`. If both of the fields are provided, `transactionTimestamp` will be used.",
+            "format": "int64"
+          },
+          "transactionDate": {
+            "type": "string",
+            "description": "Datetime with timezone for the transaction date and time. You can also provide `transactionTimestamp`. If both of the fields are provided, `transactionTimestamp` will be used."
+          },
+          "transactionType": {
+            "type": "string",
+            "description": "Type of the transaction. If it is an incoming money, use `Money In`; if it is an outgoing money, use `Money Out`"
+          },
+          "mathcingEntityId": {
+            "type": "string",
+            "description": "32-character unique ID of the customer or supplier of the transaction's sender or receiver. If you don't know the ID, you can also provide `mathcingEntityCode` instead of this field. If both of them are provided, `matchingEntityId` will be used only.",
+            "format": "uuid",
+            "nullable": true
+          },
+          "mathcingEntityCode": {
+            "type": "string",
+            "description": "User-generated custom customer or supplier code of the transaction's sender or receiver."
+          },
+          "amount": {
+            "type": "number",
+            "description": "Amount of the transaction. It should be a positive decimal number. `eg. 1059.34`",
+            "format": "double"
+          }
+        },
+        "additionalProperties": false
+      },
+      "CreateTransactionResponse": {
+        "title": "Transaction",
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "accountId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "accountName": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "transactionTimestamp": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "transactionDate": {
+            "type": "string"
+          },
+          "amount": {
+            "type": "number",
+            "format": "double"
+          },
+          "currency": {
+            "type": "string"
+          },
+          "transactionType": {
+            "type": "string"
+          },
+          "matchedEntity": {
+            "title": "Matched Entity",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/CreateTransactionMatchedEntityResponse"
+              }
+            ]
+          },
+          "matchedIncomes": {
+            "title": "Matched Incomes",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CreateTransactionMatchedIncomesResponse"
+            }
+          },
+          "matchedExpenses": {
+            "title": "Matched Expenses",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CreateTransactionMatchedExpensesResponse"
+            }
+          }
+        },
+        "additionalProperties": false
+      },
+      "CreateTransactionResponseResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "errors": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          },
+          "data": {
+            "title": "Transaction",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/CreateTransactionResponse"
+              }
+            ]
+          }
+        },
+        "additionalProperties": false
+      },
+      "GetAllBanksResponse": {
+        "title": "Banks",
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "iban": {
+            "type": "string"
+          },
+          "integrationType": {
+            "type": "string"
+          },
+          "currency": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          },
+          "openingBalance": {
+            "type": "number",
+            "format": "double"
+          },
+          "currentBalance": {
+            "type": "number",
+            "format": "double"
+          }
+        },
+        "additionalProperties": false
+      },
+      "GetAllBanksResponseListResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "errors": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/GetAllBanksResponse"
+            }
+          }
+        },
+        "additionalProperties": false
+      },
+      "GetAllBusinessEntityResponse": {
+        "title": "Business Entities",
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "entityCode": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "legalName": {
+            "type": "string"
+          },
+          "vatNumber": {
+            "type": "string"
+          },
+          "taxOffice": {
+            "type": "string"
+          },
+          "address": {
+            "type": "string"
+          },
+          "city": {
+            "type": "string"
+          },
+          "country": {
+            "type": "string"
+          },
+          "district": {
+            "type": "string"
+          },
+          "state": {
+            "type": "string"
+          },
+          "postalCode": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "phone": {
+            "type": "string"
+          },
+          "iban": {
+            "type": "string"
+          },
+          "isCustomer": {
+            "type": "boolean"
+          },
+          "isSupplier": {
+            "type": "boolean"
+          }
+        },
+        "additionalProperties": false
+      },
+      "GetAllBusinessEntityResponseListResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "errors": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/GetAllBusinessEntityResponse"
+            }
+          }
+        },
+        "additionalProperties": false
+      },
+      "GetAllExpensesItemTaxesResponse": {
+        "type": "object",
+        "properties": {
+          "taxId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "taxName": {
+            "type": "string"
+          },
+          "taxAmount": {
+            "type": "number",
+            "format": "double"
+          }
+        },
+        "additionalProperties": false
+      },
+      "GetAllExpensesItemsResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "itemDetail": {
+            "type": "string"
+          },
+          "productCode": {
+            "type": "string"
+          },
+          "productId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "productName": {
+            "type": "string"
+          },
+          "quantity": {
             "type": "integer",
             "format": "int32"
           },
-          "message": {
+          "unitPrice": {
+            "type": "string"
+          },
+          "totalTaxes": {
+            "type": "number",
+            "format": "double"
+          },
+          "totalAmount": {
+            "type": "number",
+            "format": "double"
+          },
+          "itemTaxes": {
+            "title": "Item Taxes",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/GetAllExpensesItemTaxesResponse"
+            }
+          }
+        },
+        "additionalProperties": false
+      },
+      "GetAllExpensesMatchedPaymentsResponse": {
+        "type": "object",
+        "properties": {
+          "bankAccountId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "bankAccountName": {
+            "type": "string"
+          },
+          "transactionId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "amount": {
+            "type": "number",
+            "format": "double"
+          },
+          "currency": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "transactionDate": {
             "type": "string"
           }
-        }
+        },
+        "additionalProperties": false
+      },
+      "GetAllExpensesProjectResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "projectCode": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "GetAllExpensesRequest": {
+        "type": "object",
+        "properties": {
+          "startDate": {
+            "type": "string",
+            "description": "Starting date to be applied to date filter. Should be formatted in `YYYY-MM-DD` format",
+            "nullable": true
+          },
+          "endDate": {
+            "type": "string",
+            "description": "End date to be applied to date filter. Should be formatted in `YYYY-MM-DD` format",
+            "nullable": true
+          },
+          "supplierId": {
+            "type": "string",
+            "description": "32-character unique ID to filter a specific business entity. If you don't know the ID, you can also provide `supplierCode` instead of this field. If both of them are provided, `supplierId` will be used only.",
+            "format": "uuid",
+            "nullable": true
+          },
+          "supplierCode": {
+            "type": "string",
+            "description": "User-generated custom unique code to filter a specific business entity. If `supplierId` is also provided, it will override this filter.",
+            "nullable": true
+          },
+          "tagName": {
+            "type": "string",
+            "description": "Name of the tag to be included in the filtering. Case sensitive. It should exactly match with the name in the Nuvio Platform.",
+            "nullable": true
+          },
+          "projectName": {
+            "type": "string",
+            "description": "Name of the project to be included in the filtering. Case sensitive. It should exactly match with the name in the Nuvio Platform.",
+            "nullable": true
+          },
+          "projectCode": {
+            "type": "string",
+            "description": "User generated code of the project to be included in the filtering. Case sensitive. It should exactly match with the code in the Nuvio Platform.",
+            "nullable": true
+          },
+          "paymentStatus": {
+            "type": "string",
+            "description": "Select one of the enum values to filter specific incomes that matches with required payment status.",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "GetAllExpensesResponse": {
+        "title": "Expenses",
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "referenceNumber": {
+            "type": "string"
+          },
+          "paymentStatus": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "dueDate": {
+            "type": "string"
+          },
+          "expenseDate": {
+            "type": "string"
+          },
+          "currency": {
+            "type": "string"
+          },
+          "exchangeRate": {
+            "type": "number",
+            "format": "double"
+          },
+          "project": {
+            "title": "Project",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/GetAllExpensesProjectResponse"
+              }
+            ]
+          },
+          "supplier": {
+            "title": "Supplier",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/GetAllExpensesSupplierResponse"
+              }
+            ]
+          },
+          "tags": {
+            "title": "Tags",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/GetAllExpensesTagsResponse"
+            }
+          },
+          "subTotal": {
+            "type": "number",
+            "format": "double"
+          },
+          "totalTax": {
+            "type": "number",
+            "format": "double"
+          },
+          "totalAmount": {
+            "type": "number",
+            "format": "double"
+          },
+          "remainingAmount": {
+            "type": "number",
+            "format": "double"
+          },
+          "items": {
+            "title": "Items",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/GetAllExpensesItemsResponse"
+            }
+          },
+          "matchedPayments": {
+            "title": "Matched Payments",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/GetAllExpensesMatchedPaymentsResponse"
+            }
+          }
+        },
+        "additionalProperties": false
+      },
+      "GetAllExpensesResponseListResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "errors": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/GetAllExpensesResponse"
+            }
+          }
+        },
+        "additionalProperties": false
+      },
+      "GetAllExpensesSupplierResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "entityCode": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "GetAllExpensesTagsResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "GetAllIncomesCustomerResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "entityCode": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "GetAllIncomesItemTaxesResponse": {
+        "type": "object",
+        "properties": {
+          "taxId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "taxName": {
+            "type": "string"
+          },
+          "taxAmount": {
+            "type": "number",
+            "format": "double"
+          }
+        },
+        "additionalProperties": false
+      },
+      "GetAllIncomesItemsResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "productCode": {
+            "type": "string"
+          },
+          "productId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "productName": {
+            "type": "string"
+          },
+          "quantity": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "unitPrice": {
+            "type": "string"
+          },
+          "totalTaxes": {
+            "type": "number",
+            "format": "double"
+          },
+          "totalAmount": {
+            "type": "number",
+            "format": "double"
+          },
+          "itemTaxes": {
+            "title": "Item Taxes",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/GetAllIncomesItemTaxesResponse"
+            }
+          }
+        },
+        "additionalProperties": false
+      },
+      "GetAllIncomesMatchedPaymentsResponse": {
+        "type": "object",
+        "properties": {
+          "bankAccountId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "bankAccountName": {
+            "type": "string"
+          },
+          "transactionId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "amount": {
+            "type": "number",
+            "format": "double"
+          },
+          "currency": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "transactionDate": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "GetAllIncomesProjectResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "projectCode": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "GetAllIncomesRequest": {
+        "type": "object",
+        "properties": {
+          "startDate": {
+            "type": "string",
+            "description": "Starting date to be applied to date filter. Should be formatted in `YYYY-MM-DD` format",
+            "nullable": true
+          },
+          "endDate": {
+            "type": "string",
+            "description": "End date to be applied to date filter. Should be formatted in `YYYY-MM-DD` format",
+            "nullable": true
+          },
+          "customerId": {
+            "type": "string",
+            "description": "32-character unique ID to filter a specific business entity. If you don't know the ID, you can also provide `customerCode` instead of this field. If both of them are provided, `customerId` will be used only.",
+            "format": "uuid",
+            "nullable": true
+          },
+          "customerCode": {
+            "type": "string",
+            "description": "User-generated custom unique code to filter a specific business entity. If `customerId` is also provided, it will override this filter.",
+            "nullable": true
+          },
+          "tagName": {
+            "type": "string",
+            "description": "Name of the tag to be included in the filtering. Case sensitive. It should exactly match with the name in the Nuvio Platform.",
+            "nullable": true
+          },
+          "projectName": {
+            "type": "string",
+            "description": "Name of the project to be included in the filtering. Case sensitive. It should exactly match with the name in the Nuvio Platform.",
+            "nullable": true
+          },
+          "projectCode": {
+            "type": "string",
+            "description": "User generated code of the project to be included in the filtering. Case sensitive. It should exactly match with the code in the Nuvio Platform.",
+            "nullable": true
+          },
+          "paymentStatus": {
+            "type": "string",
+            "description": "Select one of the enum values to filter specific incomes that matches with required payment status.",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "GetAllIncomesResponse": {
+        "title": "Incomes",
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "invoiceNumber": {
+            "type": "string"
+          },
+          "invoiceStatus": {
+            "type": "string"
+          },
+          "paymentStatus": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "dueDate": {
+            "type": "string"
+          },
+          "invoiceDate": {
+            "type": "string"
+          },
+          "currency": {
+            "type": "string"
+          },
+          "exchangeRate": {
+            "type": "number",
+            "format": "double"
+          },
+          "project": {
+            "title": "Project",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/GetAllIncomesProjectResponse"
+              }
+            ]
+          },
+          "customer": {
+            "title": "Customer",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/GetAllIncomesCustomerResponse"
+              }
+            ]
+          },
+          "tags": {
+            "title": "Tags",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/GetAllIncomesTagsResponse"
+            }
+          },
+          "subTotal": {
+            "type": "number",
+            "format": "double"
+          },
+          "totalTax": {
+            "type": "number",
+            "format": "double"
+          },
+          "totalAmount": {
+            "type": "number",
+            "format": "double"
+          },
+          "remainingAmount": {
+            "type": "number",
+            "format": "double"
+          },
+          "items": {
+            "title": "Items",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/GetAllIncomesItemsResponse"
+            }
+          },
+          "matchedPayments": {
+            "title": "Matched Payments",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/GetAllIncomesMatchedPaymentsResponse"
+            }
+          }
+        },
+        "additionalProperties": false
+      },
+      "GetAllIncomesResponseListResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "errors": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/GetAllIncomesResponse"
+            }
+          }
+        },
+        "additionalProperties": false
+      },
+      "GetAllIncomesTagsResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "GetAllProductsResponse": {
+        "title": "Products",
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "code": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "taxes": {
+            "title": "Taxes",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/GetAllProductsTaxesResponse"
+            }
+          }
+        },
+        "additionalProperties": false
+      },
+      "GetAllProductsResponseListResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "errors": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/GetAllProductsResponse"
+            }
+          }
+        },
+        "additionalProperties": false
+      },
+      "GetAllProductsTaxesResponse": {
+        "type": "object",
+        "properties": {
+          "taxId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "taxName": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "GetAllProjectsResponse": {
+        "title": "Projects",
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "budget": {
+            "type": "number",
+            "format": "double"
+          },
+          "startDate": {
+            "type": "string"
+          },
+          "endDate": {
+            "type": "string"
+          },
+          "code": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "GetAllProjectsResponseListResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "errors": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/GetAllProjectsResponse"
+            }
+          }
+        },
+        "additionalProperties": false
+      },
+      "GetAllTagsResponse": {
+        "title": "Tags",
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "GetAllTagsResponseListResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "errors": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/GetAllTagsResponse"
+            }
+          }
+        },
+        "additionalProperties": false
+      },
+      "GetAllTaxesResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "taxName": {
+            "type": "string"
+          },
+          "taxRate": {
+            "type": "number",
+            "format": "double"
+          },
+          "isCompound": {
+            "type": "boolean"
+          }
+        },
+        "additionalProperties": false
+      },
+      "GetAllTaxesResponseListResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "errors": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/GetAllTaxesResponse"
+            }
+          }
+        },
+        "additionalProperties": false
+      },
+      "GetAllTransactionsMatchedEntityResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "code": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "GetAllTransactionsMatchedExpensesResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "expenseId": {
+            "type": "string"
+          },
+          "matchedAmount": {
+            "type": "number",
+            "format": "double"
+          }
+        },
+        "additionalProperties": false
+      },
+      "GetAllTransactionsMatchedIncomesResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "invoiceId": {
+            "type": "string"
+          },
+          "matchedAmount": {
+            "type": "number",
+            "format": "double"
+          }
+        },
+        "additionalProperties": false
+      },
+      "GetAllTransactionsResponse": {
+        "title": "Transactions",
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "accountId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "accountName": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "transactionTimestamp": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "transactionDate": {
+            "type": "string"
+          },
+          "amount": {
+            "type": "number",
+            "format": "double"
+          },
+          "currency": {
+            "type": "string"
+          },
+          "transactionType": {
+            "type": "string"
+          },
+          "matchedEntity": {
+            "title": "Matched Entity",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/GetAllTransactionsMatchedEntityResponse"
+              }
+            ]
+          },
+          "matchedIncomes": {
+            "title": "Matched Incomes",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/GetAllTransactionsMatchedIncomesResponse"
+            }
+          },
+          "matchedExpenses": {
+            "title": "Matched Expenses",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/GetAllTransactionsMatchedExpensesResponse"
+            }
+          }
+        },
+        "additionalProperties": false
+      },
+      "GetAllTransactionsResponseListResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "errors": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/GetAllTransactionsResponse"
+            }
+          }
+        },
+        "additionalProperties": false
+      },
+      "GetBankByIdResponse": {
+        "title": "Bank",
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "iban": {
+            "type": "string"
+          },
+          "integrationType": {
+            "type": "string"
+          },
+          "currency": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          },
+          "openingBalance": {
+            "type": "number",
+            "format": "double"
+          },
+          "currentBalance": {
+            "type": "number",
+            "format": "double"
+          }
+        },
+        "additionalProperties": false
+      },
+      "GetBankByIdResponseResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "errors": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          },
+          "data": {
+            "title": "Bank",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/GetBankByIdResponse"
+              }
+            ]
+          }
+        },
+        "additionalProperties": false
+      },
+      "GetBusinessEntityByIdResponse": {
+        "title": "Business Entity",
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "entityCode": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "legalName": {
+            "type": "string"
+          },
+          "vatNumber": {
+            "type": "string"
+          },
+          "taxOffice": {
+            "type": "string"
+          },
+          "address": {
+            "type": "string"
+          },
+          "city": {
+            "type": "string"
+          },
+          "country": {
+            "type": "string"
+          },
+          "district": {
+            "type": "string"
+          },
+          "state": {
+            "type": "string"
+          },
+          "postalCode": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "phone": {
+            "type": "string"
+          },
+          "iban": {
+            "type": "string"
+          },
+          "isCustomer": {
+            "type": "boolean"
+          },
+          "isSupplier": {
+            "type": "boolean"
+          }
+        },
+        "additionalProperties": false
+      },
+      "GetBusinessEntityByIdResponseResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "errors": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          },
+          "data": {
+            "title": "Business Entity",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/GetBusinessEntityByIdResponse"
+              }
+            ]
+          }
+        },
+        "additionalProperties": false
+      },
+      "GetExpenseByIdItemTaxesResponse": {
+        "type": "object",
+        "properties": {
+          "taxId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "taxName": {
+            "type": "string"
+          },
+          "taxAmount": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "GetExpenseByIdItemsResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "itemDetail": {
+            "type": "string"
+          },
+          "productCode": {
+            "type": "string"
+          },
+          "productId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "productName": {
+            "type": "string"
+          },
+          "quantity": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "unitPrice": {
+            "type": "string"
+          },
+          "totalTaxes": {
+            "type": "number",
+            "format": "double"
+          },
+          "totalAmount": {
+            "type": "number",
+            "format": "double"
+          },
+          "itemTaxes": {
+            "title": "Item Taxes",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/GetExpenseByIdItemTaxesResponse"
+            }
+          }
+        },
+        "additionalProperties": false
+      },
+      "GetExpenseByIdMatchedPaymentsResponse": {
+        "type": "object",
+        "properties": {
+          "bankAccountId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "bankAccountName": {
+            "type": "string"
+          },
+          "transactionId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "amount": {
+            "type": "number",
+            "format": "double"
+          },
+          "currency": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "transactionDate": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "GetExpenseByIdProjectResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "projectCode": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "GetExpenseByIdResponse": {
+        "title": "Expense",
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "referenceNumber": {
+            "type": "string"
+          },
+          "paymentStatus": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "dueDate": {
+            "type": "string"
+          },
+          "expenseDate": {
+            "type": "string"
+          },
+          "currency": {
+            "type": "string"
+          },
+          "exchangeRate": {
+            "type": "number",
+            "format": "double"
+          },
+          "project": {
+            "title": "Project",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/GetExpenseByIdProjectResponse"
+              }
+            ]
+          },
+          "supplier": {
+            "title": "Supplier",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/GetExpenseByIdSupplierResponse"
+              }
+            ]
+          },
+          "tags": {
+            "title": "Tags",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/GetExpenseByIdTagsResponse"
+            }
+          },
+          "subTotal": {
+            "type": "number",
+            "format": "double"
+          },
+          "totalTax": {
+            "type": "number",
+            "format": "double"
+          },
+          "totalAmount": {
+            "type": "number",
+            "format": "double"
+          },
+          "remainingAmount": {
+            "type": "number",
+            "format": "double"
+          },
+          "items": {
+            "title": "Items",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/GetExpenseByIdItemsResponse"
+            }
+          },
+          "matchedPayments": {
+            "title": "Matched Payments",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/GetExpenseByIdMatchedPaymentsResponse"
+            }
+          }
+        },
+        "additionalProperties": false
+      },
+      "GetExpenseByIdResponseResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "errors": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          },
+          "data": {
+            "title": "Expense",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/GetExpenseByIdResponse"
+              }
+            ]
+          }
+        },
+        "additionalProperties": false
+      },
+      "GetExpenseByIdSupplierResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "entityCode": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "GetExpenseByIdTagsResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "GetIncomeByIdCustomerResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "entityCode": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "GetIncomeByIdItemTaxesResponse": {
+        "type": "object",
+        "properties": {
+          "taxId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "taxName": {
+            "type": "string"
+          },
+          "taxAmount": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "GetIncomeByIdItemsResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "productCode": {
+            "type": "string"
+          },
+          "productId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "productName": {
+            "type": "string"
+          },
+          "quantity": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "unitPrice": {
+            "type": "string"
+          },
+          "totalTaxes": {
+            "type": "number",
+            "format": "double"
+          },
+          "totalAmount": {
+            "type": "number",
+            "format": "double"
+          },
+          "itemTaxes": {
+            "title": "Item Taxes",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/GetIncomeByIdItemTaxesResponse"
+            }
+          }
+        },
+        "additionalProperties": false
+      },
+      "GetIncomeByIdMatchedPaymentsResponse": {
+        "type": "object",
+        "properties": {
+          "bankAccountId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "bankAccountName": {
+            "type": "string"
+          },
+          "transactionId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "amount": {
+            "type": "number",
+            "format": "double"
+          },
+          "currency": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "transactionDate": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "GetIncomeByIdProjectResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "projectCode": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "GetIncomeByIdResponse": {
+        "title": "Income",
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "invoiceNumber": {
+            "type": "string"
+          },
+          "invoiceStatus": {
+            "type": "string"
+          },
+          "paymentStatus": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "dueDate": {
+            "type": "string"
+          },
+          "invoiceDate": {
+            "type": "string"
+          },
+          "currency": {
+            "type": "string"
+          },
+          "exchangeRate": {
+            "type": "number",
+            "format": "double"
+          },
+          "project": {
+            "title": "Project",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/GetIncomeByIdProjectResponse"
+              }
+            ]
+          },
+          "customer": {
+            "title": "Customer",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/GetIncomeByIdCustomerResponse"
+              }
+            ]
+          },
+          "tags": {
+            "title": "Tags",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/GetIncomeByIdTagsResponse"
+            }
+          },
+          "subTotal": {
+            "type": "number",
+            "format": "double"
+          },
+          "totalTax": {
+            "type": "number",
+            "format": "double"
+          },
+          "totalAmount": {
+            "type": "number",
+            "format": "double"
+          },
+          "remainingAmount": {
+            "type": "number",
+            "format": "double"
+          },
+          "items": {
+            "title": "Items",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/GetIncomeByIdItemsResponse"
+            }
+          },
+          "matchedPayments": {
+            "title": "Matched Payments",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/GetIncomeByIdMatchedPaymentsResponse"
+            }
+          }
+        },
+        "additionalProperties": false
+      },
+      "GetIncomeByIdResponseResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "errors": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          },
+          "data": {
+            "title": "Income",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/GetIncomeByIdResponse"
+              }
+            ]
+          }
+        },
+        "additionalProperties": false
+      },
+      "GetIncomeByIdTagsResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "GetProductByIdResponse": {
+        "title": "Product",
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "code": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "taxes": {
+            "title": "Taxes",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/GetProductByIdTaxesResponse"
+            }
+          }
+        },
+        "additionalProperties": false
+      },
+      "GetProductByIdResponseResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "errors": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          },
+          "data": {
+            "title": "Product",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/GetProductByIdResponse"
+              }
+            ]
+          }
+        },
+        "additionalProperties": false
+      },
+      "GetProductByIdTaxesResponse": {
+        "type": "object",
+        "properties": {
+          "taxId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "taxName": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "GetProjectByIdResponse": {
+        "title": "Project",
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "budget": {
+            "type": "number",
+            "format": "double"
+          },
+          "startDate": {
+            "type": "string"
+          },
+          "endDate": {
+            "type": "string"
+          },
+          "code": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "GetProjectByIdResponseResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "errors": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          },
+          "data": {
+            "title": "Project",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/GetProjectByIdResponse"
+              }
+            ]
+          }
+        },
+        "additionalProperties": false
+      },
+      "GetTagByIdResponse": {
+        "title": "Tag",
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "GetTagByIdResponseResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "errors": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          },
+          "data": {
+            "title": "Tag",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/GetTagByIdResponse"
+              }
+            ]
+          }
+        },
+        "additionalProperties": false
+      },
+      "GetTransactionByIdMatchedEntityResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "code": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "GetTransactionByIdMatchedExpensesResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "expenseId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "matchedAmount": {
+            "type": "number",
+            "format": "double"
+          }
+        },
+        "additionalProperties": false
+      },
+      "GetTransactionByIdMatchedIncomesResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "invoiceId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "matchedAmount": {
+            "type": "number",
+            "format": "double"
+          }
+        },
+        "additionalProperties": false
+      },
+      "GetTransactionByIdResponse": {
+        "title": "Transaction",
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "accountId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "accountName": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "transactionTimestamp": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "transactionDate": {
+            "type": "string"
+          },
+          "amount": {
+            "type": "number",
+            "format": "double"
+          },
+          "currency": {
+            "type": "string"
+          },
+          "transactionType": {
+            "type": "string"
+          },
+          "matchedEntity": {
+            "title": "Matched Entity",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/GetTransactionByIdMatchedEntityResponse"
+              }
+            ]
+          },
+          "matchedIncomes": {
+            "title": "Matched Incomes",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/GetTransactionByIdMatchedIncomesResponse"
+            }
+          },
+          "matchedExpenses": {
+            "title": "Matched Expenses",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/GetTransactionByIdMatchedExpensesResponse"
+            }
+          }
+        },
+        "additionalProperties": false
+      },
+      "GetTransactionByIdResponseResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "errors": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          },
+          "data": {
+            "title": "Transaction",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/GetTransactionByIdResponse"
+              }
+            ]
+          }
+        },
+        "additionalProperties": false
+      },
+      "MatchPaymentMatchedEntityResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "code": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "MatchPaymentMatchedExpensesResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "expenseId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "matchedAmount": {
+            "type": "number",
+            "format": "double"
+          }
+        },
+        "additionalProperties": false
+      },
+      "MatchPaymentMatchedIncomesResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "invoiceId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "matchedAmount": {
+            "type": "number",
+            "format": "double"
+          }
+        },
+        "additionalProperties": false
+      },
+      "MatchPaymentRequest": {
+        "type": "object",
+        "properties": {
+          "incomeId": {
+            "type": "string",
+            "description": "32-character unique ID of the matching income. If this payment does not match with an income, do not include this field while sending your request. you can include `expenseId` to match with an expense.",
+            "format": "uuid",
+            "nullable": true
+          },
+          "expenseId": {
+            "type": "string",
+            "description": "32-character unique ID of the matching Expense. If this payment does not match with an expense, do not include this field while sending your request. you can include `incomeId` to match with an income.",
+            "format": "uuid",
+            "nullable": true
+          },
+          "amount": {
+            "type": "number",
+            "description": "The amount of the payment. This amount should be less or equal to matched income or expense's remaining balance. It should also be less or equal to transaction's not-matched balance.",
+            "format": "double"
+          }
+        },
+        "additionalProperties": false
+      },
+      "MatchPaymentResponse": {
+        "title": "Transaction",
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "accountId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "accountName": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "transactionTimestamp": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "transactionDate": {
+            "type": "string"
+          },
+          "amount": {
+            "type": "number",
+            "format": "double"
+          },
+          "currency": {
+            "type": "string"
+          },
+          "transactionType": {
+            "type": "string"
+          },
+          "matchedEntity": {
+            "title": "Matched Entity",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/MatchPaymentMatchedEntityResponse"
+              }
+            ]
+          },
+          "matchedIncomes": {
+            "title": "Matched Incomes",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MatchPaymentMatchedIncomesResponse"
+            }
+          },
+          "matchedExpenses": {
+            "title": "Matched Expenses",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MatchPaymentMatchedExpensesResponse"
+            }
+          }
+        },
+        "additionalProperties": false
+      },
+      "MatchPaymentResponseResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "errors": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          },
+          "data": {
+            "title": "Transaction",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/MatchPaymentResponse"
+              }
+            ]
+          }
+        },
+        "additionalProperties": false
+      },
+      "UpdateBankRequest": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Account name"
+          },
+          "iban": {
+            "type": "string",
+            "description": "IBAN of this bank account."
+          },
+          "currency": {
+            "type": "string",
+            "description": "3-letter currency code for the account. You can find available currencies here."
+          },
+          "openingBalance": {
+            "type": "number",
+            "description": "Opening Balance to start with an existing account. It should be a decimal number with 2 decimal points. `eg. 1059.34`",
+            "format": "double",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "UpdateBankResponse": {
+        "title": "Bank",
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "iban": {
+            "type": "string"
+          },
+          "integrationType": {
+            "type": "string"
+          },
+          "currency": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          },
+          "openingBalance": {
+            "type": "number",
+            "format": "double"
+          },
+          "currentBalance": {
+            "type": "number",
+            "format": "double"
+          }
+        },
+        "additionalProperties": false
+      },
+      "UpdateBankResponseResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "errors": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          },
+          "data": {
+            "title": "Bank",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/UpdateBankResponse"
+              }
+            ]
+          }
+        },
+        "additionalProperties": false
+      },
+      "UpdateBusinessEntityRequest": {
+        "type": "object",
+        "properties": {
+          "entityCode": {
+            "type": "string",
+            "description": "A unique code for this customer / supplier. Should be a unique alpha numeric string."
+          },
+          "name": {
+            "type": "string",
+            "description": "A short name for this customer / supplier. This will be the visible name of this business entity."
+          },
+          "isCustomer": {
+            "type": "boolean",
+            "description": "Should be true if this business entity is a customer.",
+            "nullable": true
+          },
+          "isSupplier": {
+            "type": "boolean",
+            "description": "Should be true if this business entity is a supplier.",
+            "nullable": true
+          },
+          "legalName": {
+            "type": "string",
+            "description": "Legal company name for this business entity that is going to be used in invoices and billing."
+          },
+          "vatNumber": {
+            "type": "string",
+            "description": "TaxID or VAT number of the business entity."
+          },
+          "taxOffice": {
+            "type": "string",
+            "description": "Registered Tax office."
+          },
+          "address": {
+            "type": "string",
+            "description": "Billing Address of the business entity."
+          },
+          "city": {
+            "type": "string",
+            "description": "City of the registered billing address."
+          },
+          "country": {
+            "type": "string",
+            "description": "Country of the registered billing address. You can find the available countries here."
+          },
+          "district": {
+            "type": "string",
+            "description": "District / region of the registered billing address."
+          },
+          "state": {
+            "type": "string",
+            "description": "State of the registered billing address."
+          },
+          "postalCode": {
+            "type": "string",
+            "description": "Postal code of the registered billing address."
+          },
+          "email": {
+            "type": "string",
+            "description": "Contact person's email"
+          },
+          "phone": {
+            "type": "string",
+            "description": "Company's or contact person's phone"
+          },
+          "iban": {
+            "type": "string",
+            "description": "IBAN number of the bank account of the business entity."
+          }
+        },
+        "additionalProperties": false
+      },
+      "UpdateBusinessEntityResponse": {
+        "title": "Business Entity",
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "entityCode": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "legalName": {
+            "type": "string"
+          },
+          "vatNumber": {
+            "type": "string"
+          },
+          "taxOffice": {
+            "type": "string"
+          },
+          "address": {
+            "type": "string"
+          },
+          "city": {
+            "type": "string"
+          },
+          "country": {
+            "type": "string"
+          },
+          "district": {
+            "type": "string"
+          },
+          "state": {
+            "type": "string"
+          },
+          "postalCode": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "phone": {
+            "type": "string"
+          },
+          "iban": {
+            "type": "string"
+          },
+          "isCustomer": {
+            "type": "boolean"
+          },
+          "isSupplier": {
+            "type": "boolean"
+          }
+        },
+        "additionalProperties": false
+      },
+      "UpdateBusinessEntityResponseResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "errors": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          },
+          "data": {
+            "title": "Business Entity",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/UpdateBusinessEntityResponse"
+              }
+            ]
+          }
+        },
+        "additionalProperties": false
+      },
+      "UpdateExpenseItemTaxesResponse": {
+        "type": "object",
+        "properties": {
+          "taxId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "taxName": {
+            "type": "string"
+          },
+          "taxAmount": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "UpdateExpenseItemsRequest": {
+        "required": [
+          "itemDetail"
+        ],
+        "type": "object",
+        "properties": {
+          "itemDetail": {
+            "minLength": 1,
+            "type": "string",
+            "description": "Description of the item. Should be a string. "
+          },
+          "productId": {
+            "type": "string",
+            "description": "32-character unique ID of the product. If you don't know the ID, you can also provide `productCode` instead of this field. If both of them are provided, `productId` will be used only.",
+            "format": "uuid"
+          },
+          "productCode": {
+            "type": "string",
+            "description": "User-generated custom unique code of the specific product. If `productId` is also provided, it will override this field."
+          },
+          "quantity": {
+            "type": "integer",
+            "description": "Quantity of the sold items. It should be a positive integer.",
+            "format": "int32"
+          },
+          "itemTaxes": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "A list of the taxes to be applied to the related line item. Provide a list of taxes with their 32-character unique ID."
+          },
+          "unitPrice": {
+            "type": "number",
+            "description": "Net Amount of a single product sold. Should be a positive decimal number with 2 decimal points. `eg. 32.43`",
+            "format": "double"
+          }
+        },
+        "additionalProperties": false
+      },
+      "UpdateExpenseItemsResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "itemDetail": {
+            "type": "string"
+          },
+          "productCode": {
+            "type": "string"
+          },
+          "productId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "productName": {
+            "type": "string"
+          },
+          "quantity": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "unitPrice": {
+            "type": "number",
+            "format": "double"
+          },
+          "totalTaxes": {
+            "type": "number",
+            "format": "double"
+          },
+          "totalAmount": {
+            "type": "number",
+            "format": "double"
+          },
+          "itemTaxes": {
+            "title": "Item Taxes",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/UpdateExpenseItemTaxesResponse"
+            }
+          }
+        },
+        "additionalProperties": false
+      },
+      "UpdateExpenseMatchedPaymentsResponse": {
+        "type": "object",
+        "properties": {
+          "bankAccountId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "bankAccountName": {
+            "type": "string"
+          },
+          "transactionId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "amount": {
+            "type": "number",
+            "format": "double"
+          },
+          "currency": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "transactionDate": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "UpdateExpenseProjectResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "projectCode": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "UpdateExpenseRequest": {
+        "type": "object",
+        "properties": {
+          "referenceNumber": {
+            "type": "string",
+            "description": "Invoice or receipt number of the received expense, formatted in string. Accepts alpha numeric characters and '-' symbol."
+          },
+          "description": {
+            "type": "string",
+            "description": "Description of the expense. This will also be its title in the Nuvio Platform."
+          },
+          "expenseDate": {
+            "type": "string",
+            "description": "The date of the expense. Should be formatted in `YYYY-MM-DD` format"
+          },
+          "dueDate": {
+            "type": "string",
+            "description": "Due date of the payment for this expense. Should be formatted in `YYYY-MM-DD` format"
+          },
+          "currency": {
+            "type": "string",
+            "description": "3-letter currency code. You can find all the available currencies here."
+          },
+          "projectId": {
+            "type": "string",
+            "description": "32-character unique ID of the related project. If you don't know the ID, you can also provide `projectCode` instead of this field. If both of them are provided `projectId` will be used only.",
+            "format": "uuid"
+          },
+          "projectCode": {
+            "type": "string",
+            "description": "User-generated custom code of the related project. If `projectId` is also provided, it will override this field."
+          },
+          "supplierId": {
+            "type": "string",
+            "description": "32-character unique ID of the supplier. If you don't know the ID, you can also provide `supplierCode` instead of this field. If both of them are provided, `supplierId` will be used only.",
+            "format": "uuid"
+          },
+          "supplierCode": {
+            "type": "string",
+            "description": "User-generated custom unique code of the specific supplier. If `supplierId` is also provided, it will override this field."
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "List of the tags that are related to this expense. Provide a list of tags with their 32-character unique ID."
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/UpdateExpenseItemsRequest"
+            },
+            "description": "List of the items that are linked to this expense. This list will override existing list of items in the updated expense. Do not just update 1 item, make sure to include all the items in your request."
+          },
+          "exchangeRate": {
+            "type": "number",
+            "description": "If currency is different than your company's functional currency, this will be the exchange rate that Nuvio will use while converting the amounts of this expense to company's functional currency. Should be number with 4 decimal points. `eg. 32.4325`",
+            "format": "double",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "UpdateExpenseResponse": {
+        "title": "Expense",
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "referenceNumber": {
+            "type": "string"
+          },
+          "paymentStatus": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "dueDate": {
+            "type": "string"
+          },
+          "expenseDate": {
+            "type": "string"
+          },
+          "currency": {
+            "type": "string"
+          },
+          "exchangeRate": {
+            "type": "number",
+            "format": "double"
+          },
+          "project": {
+            "title": "Project",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/UpdateExpenseProjectResponse"
+              }
+            ]
+          },
+          "supplier": {
+            "title": "Supplier",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/UpdateExpenseSupplierResponse"
+              }
+            ]
+          },
+          "tags": {
+            "title": "Tags",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/UpdateExpenseTagsResponse"
+            }
+          },
+          "subTotal": {
+            "type": "number",
+            "format": "double"
+          },
+          "totalTax": {
+            "type": "number",
+            "format": "double"
+          },
+          "totalAmount": {
+            "type": "number",
+            "format": "double"
+          },
+          "remainingAmount": {
+            "type": "number",
+            "format": "double"
+          },
+          "items": {
+            "title": "Items",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/UpdateExpenseItemsResponse"
+            }
+          },
+          "matchedPayments": {
+            "title": "Matched Payments",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/UpdateExpenseMatchedPaymentsResponse"
+            }
+          }
+        },
+        "additionalProperties": false
+      },
+      "UpdateExpenseResponseResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "errors": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          },
+          "data": {
+            "title": "Expense",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/UpdateExpenseResponse"
+              }
+            ]
+          }
+        },
+        "additionalProperties": false
+      },
+      "UpdateExpenseSupplierResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "entityCode": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "UpdateExpenseTagsResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "UpdateIncomeCustomerResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "entityCode": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "UpdateIncomeItemTaxesResponse": {
+        "type": "object",
+        "properties": {
+          "taxId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "taxName": {
+            "type": "string"
+          },
+          "taxAmount": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "UpdateIncomeItemsRequest": {
+        "type": "object",
+        "properties": {
+          "productId": {
+            "type": "string",
+            "description": "32-character unique ID of the product. If you don't know the ID, you can also provide `productCode` instead of this field. If both of them are provided, `productId` will be used only.",
+            "format": "uuid"
+          },
+          "productCode": {
+            "type": "string",
+            "description": "User-generated custom unique code of the specific product. If `productId` is also provided, it will override this field."
+          },
+          "quantity": {
+            "type": "integer",
+            "description": "Quantity of the sold items. It should be a positive integer.",
+            "format": "int32"
+          },
+          "itemTaxes": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "A list of the taxes to be applied to the related line item. Provide a list of taxes with their 32-character unique ID."
+          },
+          "unitPrice": {
+            "type": "number",
+            "description": "Net Amount of a single product sold. Should be a positive decimal number with 2 decimal points. `eg. 32.43`",
+            "format": "double"
+          }
+        },
+        "additionalProperties": false
+      },
+      "UpdateIncomeItemsResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "productCode": {
+            "type": "string"
+          },
+          "productId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "productName": {
+            "type": "string"
+          },
+          "quantity": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "unitPrice": {
+            "type": "number",
+            "format": "double"
+          },
+          "totalTaxes": {
+            "type": "number",
+            "format": "double"
+          },
+          "totalAmount": {
+            "type": "number",
+            "format": "double"
+          },
+          "itemTaxes": {
+            "title": "Item Taxes",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/UpdateIncomeItemTaxesResponse"
+            }
+          }
+        },
+        "additionalProperties": false
+      },
+      "UpdateIncomeMatchedPaymentsResponse": {
+        "type": "object",
+        "properties": {
+          "bankAccountId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "bankAccountName": {
+            "type": "string"
+          },
+          "transactionId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "amount": {
+            "type": "number",
+            "format": "double"
+          },
+          "currency": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "transactionDate": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "UpdateIncomeProjectResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "projectCode": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "UpdateIncomeRequest": {
+        "type": "object",
+        "properties": {
+          "invoiceNumber": {
+            "type": "string",
+            "description": "Invoice number formatted in string. Accepts alpha numeric characters and '-' symbol."
+          },
+          "description": {
+            "type": "string",
+            "description": "Description of the income. This will also be its title in the Nuvio Platform."
+          },
+          "invoiceDate": {
+            "type": "string",
+            "description": "The date of the income. Should be formatted in `YYYY-MM-DD` format"
+          },
+          "dueDate": {
+            "type": "string",
+            "description": "Due date of the payment for this income. Should be formatted in `YYYY-MM-DD` format"
+          },
+          "currency": {
+            "type": "string",
+            "description": "3-letter currency code. You can find all the available currencies here."
+          },
+          "projectId": {
+            "type": "string",
+            "description": "32-character unique ID of the related project. If you don't know the ID, you can also provide `projectCode` instead of this field. If both of them are provided `projectId` will be used only.",
+            "format": "uuid"
+          },
+          "projectCode": {
+            "type": "string",
+            "description": "User-generated custom code of the related project. If `projectId` is also provided, it will override this field."
+          },
+          "customerId": {
+            "type": "string",
+            "description": "32-character unique ID of the customer. If you don't know the ID, you can also provide `customerCode` instead of this field. If both of them are provided, `customerId` will be used only.",
+            "format": "uuid"
+          },
+          "customerCode": {
+            "type": "string",
+            "description": "User-generated custom unique code of the specific customer. If `customerId` is also provided, it will override this field."
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "List of the tags that are related to this income. Provide a list of tags with their 32-character unique ID."
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/UpdateIncomeItemsRequest"
+            },
+            "description": "List of the items that are sold in this income. This list will override existing list of items in the updated income. Do not just update 1 item, make sure to include all the items in your request."
+          },
+          "exchangeRate": {
+            "type": "number",
+            "description": "If currency is different than your company's functional currency, this will be the exchange rate that Nuvio will use while converting the amounts of this expense to company's functional currency. Should be number with 4 decimal points. `eg. 32.4325`",
+            "format": "double",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "UpdateIncomeResponse": {
+        "title": "Income",
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "invoiceNumber": {
+            "type": "string"
+          },
+          "invoiceStatus": {
+            "type": "string"
+          },
+          "paymentStatus": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "dueDate": {
+            "type": "string"
+          },
+          "invoiceDate": {
+            "type": "string"
+          },
+          "currency": {
+            "type": "string"
+          },
+          "exchangeRate": {
+            "type": "number",
+            "format": "double"
+          },
+          "project": {
+            "title": "Project",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/UpdateIncomeProjectResponse"
+              }
+            ]
+          },
+          "customer": {
+            "title": "Customer",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/UpdateIncomeCustomerResponse"
+              }
+            ]
+          },
+          "tags": {
+            "title": "Tags",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/UpdateIncomeTagsResponse"
+            }
+          },
+          "subTotal": {
+            "type": "number",
+            "format": "double"
+          },
+          "totalTax": {
+            "type": "number",
+            "format": "double"
+          },
+          "totalAmount": {
+            "type": "number",
+            "format": "double"
+          },
+          "remainingAmount": {
+            "type": "number",
+            "format": "double"
+          },
+          "items": {
+            "title": "Items",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/UpdateIncomeItemsResponse"
+            }
+          },
+          "matchedPayments": {
+            "title": "Matched Payments",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/UpdateIncomeMatchedPaymentsResponse"
+            }
+          }
+        },
+        "additionalProperties": false
+      },
+      "UpdateIncomeResponseResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "errors": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          },
+          "data": {
+            "title": "Income",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/UpdateIncomeResponse"
+              }
+            ]
+          }
+        },
+        "additionalProperties": false
+      },
+      "UpdateIncomeTagsResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "UpdateProductRequest": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "A user-generated custom code for this product or service"
+          },
+          "productCode": {
+            "type": "string",
+            "description": "Name of the product or service"
+          },
+          "taxes": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "A list of the default taxes to be added to when the product is selected in the Nuvio Platform. Provide a list of taxes with their 32-character unique ID."
+          }
+        },
+        "additionalProperties": false
+      },
+      "UpdateProductResponse": {
+        "title": "Product",
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "code": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "taxes": {
+            "title": "Taxes",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/UpdateProductTaxesResponse"
+            }
+          }
+        },
+        "additionalProperties": false
+      },
+      "UpdateProductResponseResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "errors": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          },
+          "data": {
+            "title": "Product",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/UpdateProductResponse"
+              }
+            ]
+          }
+        },
+        "additionalProperties": false
+      },
+      "UpdateProductTaxesResponse": {
+        "type": "object",
+        "properties": {
+          "taxId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "taxName": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "UpdateProjectRequest": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Name of the project"
+          },
+          "startDate": {
+            "type": "string",
+            "description": "Starting date of the project. Should be in `YYYY-MM-DD` format"
+          },
+          "endDate": {
+            "type": "string",
+            "description": "Ending date of the project. Should be in `YYYY-MM-DD` format"
+          },
+          "projectCode": {
+            "type": "string",
+            "description": "Name of the project"
+          },
+          "budget": {
+            "type": "number",
+            "description": "Total budget of the project.",
+            "format": "double",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "UpdateProjectResponse": {
+        "title": "Project",
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "budget": {
+            "type": "number",
+            "format": "double"
+          },
+          "startDate": {
+            "type": "string"
+          },
+          "endDate": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "UpdateProjectResponseResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "errors": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          },
+          "data": {
+            "title": "Project",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/UpdateProjectResponse"
+              }
+            ]
+          }
+        },
+        "additionalProperties": false
+      },
+      "UpdateTagRequest": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Name of the tag"
+          }
+        },
+        "additionalProperties": false
+      },
+      "UpdateTagResponse": {
+        "title": "Tag",
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "UpdateTagResponseResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "errors": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          },
+          "data": {
+            "title": "Tag",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/UpdateTagResponse"
+              }
+            ]
+          }
+        },
+        "additionalProperties": false
+      },
+      "UpdateTransactionMatchedEntityResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "code": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "UpdateTransactionMatchedExpensesResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "expenseId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "matchedAmount": {
+            "type": "number",
+            "format": "double"
+          }
+        },
+        "additionalProperties": false
+      },
+      "UpdateTransactionMatchedIncomesResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "invoiceId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "matchedAmount": {
+            "type": "number",
+            "format": "double"
+          }
+        },
+        "additionalProperties": false
+      },
+      "UpdateTransactionRequest": {
+        "type": "object",
+        "properties": {
+          "description": {
+            "type": "string",
+            "description": "Description of the transaction"
+          },
+          "transactionTimestamp": {
+            "type": "integer",
+            "description": "Epoch timestamp for the transaction date and time. If you don't know the timestamp, you can also provice `transactionDate`. If both of the fields are provided, `transactionTimestamp` will be used.",
+            "format": "int64"
+          },
+          "transactionDate": {
+            "type": "string",
+            "description": "Datetime with timezone for the transaction date and time. You can also provide `transactionTimestamp`. If both of the fields are provided, `transactionTimestamp` will be used."
+          },
+          "transactionType": {
+            "type": "string",
+            "description": "Type of the transaction. If it is an incoming money, use `Money In`; if it is an outgoing money, use `Money Out`"
+          },
+          "mathcingEntityId": {
+            "type": "string",
+            "description": "32-character unique ID of the customer or supplier of the transaction's sender or receiver. If you don't know the ID, you can also provide `mathcingEntityCode` instead of this field. If both of them are provided, `matchingEntityId` will be used only.",
+            "format": "uuid",
+            "nullable": true
+          },
+          "mathcingEntityCode": {
+            "type": "string",
+            "description": "User-generated custom customer or supplier code of the transaction's sender or receiver."
+          },
+          "amount": {
+            "type": "number",
+            "description": "Amount of the transaction. It should be a positive decimal number. `eg. 1059.34`",
+            "format": "double",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "UpdateTransactionResponse": {
+        "title": "Transaction",
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "accountId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "accountName": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "transactionTimestamp": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "transactionDate": {
+            "type": "string"
+          },
+          "amount": {
+            "type": "number",
+            "format": "double"
+          },
+          "currency": {
+            "type": "string"
+          },
+          "transactionType": {
+            "type": "string"
+          },
+          "matchedEntity": {
+            "title": "Matched Entity",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/UpdateTransactionMatchedEntityResponse"
+              }
+            ]
+          },
+          "matchedIncomes": {
+            "title": "Matched Incomes",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/UpdateTransactionMatchedIncomesResponse"
+            }
+          },
+          "matchedExpenses": {
+            "title": "Matched Expenses",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/UpdateTransactionMatchedExpensesResponse"
+            }
+          }
+        },
+        "additionalProperties": false
+      },
+      "UpdateTransactionResponseResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "errors": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          },
+          "data": {
+            "title": "Transaction",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/UpdateTransactionResponse"
+              }
+            ]
+          }
+        },
+        "additionalProperties": false
       }
     },
     "securitySchemes": {
-      "bearerAuth": {
-        "type": "http",
-        "scheme": "bearer"
+      "Bearer": {
+        "type": "apiKey",
+        "description": "API Key Authentication",
+        "name": "Authorization",
+        "in": "header"
       }
     }
-  }
+  },
+  "security": [
+    {
+      "Bearer": [ ]
+    }
+  ]
 }
